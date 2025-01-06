@@ -41,12 +41,9 @@ class UserRepositoryTest {
         val initialSize = userRepository.getUsers().size
         userRepository.addRandomUser()
         val user = userRepository.getUsers().last()
+
         assertEquals(userRepository.getUsers().size, initialSize + 1)
-        assertTrue(
-            FAKE_USERS_RANDOM.filter {
-                it.equals(user)
-            }.isNotEmpty()
-        )
+        assertTrue(userRepository.getUsers().count { it.id == user.id } == 1)
     }
 
     @Test
