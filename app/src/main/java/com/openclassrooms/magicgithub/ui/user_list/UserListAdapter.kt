@@ -34,6 +34,12 @@ class UserListAdapter(  // FOR CALLBACK ---
         return users.size
     }
 
+    fun moveItem(fromPosition: Int, toPosition: Int) {
+        val movedUser = users.removeAt(fromPosition)
+        users.add(toPosition, movedUser)
+        notifyItemMoved(fromPosition, toPosition)
+    }
+
     // PUBLIC API ---
     fun updateList(newList: List<User>) {
         val diffResult = DiffUtil.calculateDiff(UserDiffCallback(newList, users))
