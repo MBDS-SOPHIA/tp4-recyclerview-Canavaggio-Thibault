@@ -55,4 +55,32 @@ class UserRepositoryTest {
         userRepository.deleteUser(userToDelete)
         Assert.assertFalse(userRepository.getUsers().contains(userToDelete))
     }
+
+    @Test
+    fun updateUserStatusWithSuccess() {
+        // Prendre le premier utilisateur
+        val user = userRepository.getUsers()[0]
+
+        // Vérifier que l'utilisateur est actif par défaut
+        assertTrue(user.isActive)
+
+        // Désactiver l'utilisateur
+        userRepository.updateUserStatus(user, false)
+
+        // Vérifier que l'utilisateur est maintenant inactif
+        Assert.assertFalse(user.isActive)
+
+        // Réactiver l'utilisateur
+        userRepository.updateUserStatus(user, true)
+
+        // Vérifier que l'utilisateur est à nouveau actif
+        assertTrue(user.isActive)
+    }
+
+    @Test
+    fun newUsersShouldBeActiveByDefault() {
+        userRepository.addRandomUser()
+        val newUser = userRepository.getUsers().last()
+        assertTrue(newUser.isActive)
+    }
 }
