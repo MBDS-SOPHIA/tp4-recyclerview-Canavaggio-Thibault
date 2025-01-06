@@ -28,4 +28,12 @@ class FakeApiService : ApiService {
     override fun deleteUser(user: User) {
         _users.remove(user)
     }
+
+    override fun updateUserStatus(user: User, isActive: Boolean) {
+        val userIndex = _users.indexOfFirst { it.id == user.id }
+        if (userIndex != -1) {
+            _users[userIndex].isActive = isActive
+        }
+
+    }
 }

@@ -1,25 +1,26 @@
 package com.openclassrooms.magicgithub.ui.user_list
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.openclassrooms.magicgithub.R
 import com.openclassrooms.magicgithub.databinding.ActivityListUserBinding
 import com.openclassrooms.magicgithub.di.Injection.getRepository
 import com.openclassrooms.magicgithub.model.User
 
 class ListUserActivity : AppCompatActivity(), UserListAdapter.Listener {
-    // FOR DESIGN ---
     private lateinit var binding: ActivityListUserBinding
-
-
-    // FOR DATA ---
     private lateinit var adapter: UserListAdapter
+    private val handler = Handler(Looper.getMainLooper())
+    private val refreshRunnable = object : Runnable {
+        override fun run() {
+            loadData()
+        }
+    }
 
-    // OVERRIDE ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityListUserBinding.inflate(layoutInflater)
@@ -32,12 +33,38 @@ class ListUserActivity : AppCompatActivity(), UserListAdapter.Listener {
     override fun onResume() {
         super.onResume()
         loadData()
+
     }
 
-    // CONFIGURATION ---
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacks(refreshRunnable)
+    }
+
     private fun configureRecyclerView() {
         adapter = UserListAdapter(this)
         binding.activityListUserRv.adapter = adapter
+
+        val swipeCallback = object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val user = adapter.getUser(position)
+                val newStatus = direction == ItemTouchHelper.RIGHT
+                onUserStatusChanged(user, newStatus)
+                adapter.notifyItemChanged(position)
+            }
+        }
+
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(binding.activityListUserRv)
     }
 
     private fun configureFab() {
@@ -51,10 +78,17 @@ class ListUserActivity : AppCompatActivity(), UserListAdapter.Listener {
         adapter.updateList(getRepository().getUsers())
     }
 
-    // ACTIONS ---
     override fun onClickDelete(user: User) {
-        Log.d(ListUserActivity::class.java.name, "User tries to delete a item.")
+        Log.d(TAG, "User tries to delete an item.")
         getRepository().deleteUser(user)
         loadData()
+    }
+
+    override fun onUserStatusChanged(user: User, isActive: Boolean) {
+        user.isActive = isActive
+    }
+
+    companion object {
+        private const val TAG = "ListUserActivity"
     }
 }

@@ -12,10 +12,11 @@ class UserListAdapter(  // FOR CALLBACK ---
     private val callback: Listener
 ) : RecyclerView.Adapter<ListUserViewHolder>() {
     // FOR DATA ---
-    private var users: List<User> = ArrayList()
+    private var users: MutableList<User> = mutableListOf()
 
     interface Listener {
         fun onClickDelete(user: User)
+        fun onUserStatusChanged(user: User, isActive: Boolean)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListUserViewHolder {
@@ -36,7 +37,9 @@ class UserListAdapter(  // FOR CALLBACK ---
     // PUBLIC API ---
     fun updateList(newList: List<User>) {
         val diffResult = DiffUtil.calculateDiff(UserDiffCallback(newList, users))
-        users = newList
+        users = newList.toMutableList()
         diffResult.dispatchUpdatesTo(this)
     }
+
+    fun getUser(position: Int): User = users[position]
 }
