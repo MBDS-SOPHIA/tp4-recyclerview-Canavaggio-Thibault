@@ -18,4 +18,7 @@ class UserRepository(
         apiService.deleteUser(user)
     }
 
+    fun updateUserStatus(user: User, isActive: Boolean) =
+        apiService.updateUserStatus(user, isActive)
+
 }
