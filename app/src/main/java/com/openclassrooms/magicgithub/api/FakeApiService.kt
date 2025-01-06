@@ -1,6 +1,7 @@
 package com.openclassrooms.magicgithub.api
 
 import com.openclassrooms.magicgithub.model.User
+import java.util.UUID
 
 class FakeApiService : ApiService {
     private val _users = FakeApiServiceGenerator.FAKE_USERS
@@ -19,7 +20,8 @@ class FakeApiService : ApiService {
      */
     override fun addRandomUser() {
         val randomUser = FakeApiServiceGenerator.FAKE_USERS_RANDOM.random()
-        _users.add(randomUser)
+        val uniqueUser = randomUser.copy(id = UUID.randomUUID().toString())
+        _users.add(uniqueUser)
     }
 
     /**
